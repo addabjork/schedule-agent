@@ -7,14 +7,14 @@ An AI-powered family scheduling assistant. Email or text it event details — pl
 - **Email or SMS** — send events via email or text message, including images
 - **Reads anything** — parses flyers, screenshots, and photos using Claude's vision
 - **Invites your partner** — adds both you and a partner to every event by default; say "just for me" to skip
-- **Travel buffer** — automatically checks NYC subway travel time and adds a 🚇 travel block before events that require more than 15 minutes of transit
+- **Travel buffer** — automatically checks travel time and adds a 🚗 travel block before events that require more than 15 minutes; configurable for transit, driving, walking, or cycling
 
 ## How it works
 
 1. You email or text the agent with an event description or image
 2. Claude extracts the event details (title, date, time, location)
 3. A Google Calendar event is created with invites sent to you and your partner
-4. If the event has a location, transit travel time is checked and a buffer block is added if needed
+4. If the event has a location, travel time is checked using Google Maps and a buffer block is added if needed
 5. The agent replies confirming what was created
 
 ## Stack
@@ -22,7 +22,7 @@ An AI-powered family scheduling assistant. Email or text it event details — pl
 - **Python** + FastAPI
 - **Claude Opus 4.6** (Anthropic) — parses text and images, drives tool use
 - **Google Calendar API** — creates events and sends invites
-- **Google Maps Directions API** — estimates transit travel time
+- **Google Maps Directions API** — estimates travel time (transit, driving, walking, or cycling)
 - **SendGrid Inbound Parse** — receives emails
 - **Twilio** — receives SMS/MMS
 - **Railway** (or any PaaS) — hosts the server
@@ -79,8 +79,9 @@ Set all env vars in your hosting platform's dashboard. For `GOOGLE_TOKEN_JSON`, 
 | `GOOGLE_CREDENTIALS_PATH` | ✅ | Path to `credentials.json` (default: `credentials.json`) |
 | `GOOGLE_TOKEN_PATH` | ✅ | Path to `token.json` (default: `token.json`) |
 | `GOOGLE_TOKEN_JSON` | Cloud only | Full contents of `token.json` for cloud deployments |
-| `GOOGLE_MAPS_API_KEY` | ✅ | For transit travel time estimates |
-| `HOME_ADDRESS` | ✅ | Your home address, used as the transit origin |
+| `GOOGLE_MAPS_API_KEY` | ✅ | For travel time estimates |
+| `HOME_ADDRESS` | ✅ | Your home address, used as the travel origin |
+| `TRAVEL_MODE` | ✅ | `transit`, `driving`, `walking`, or `bicycling` (default: `transit`) |
 | `SENDGRID_API_KEY` | Email | From [sendgrid.com](https://sendgrid.com) |
 | `REPLY_EMAIL_FROM` | Email | Address the agent replies from, e.g. `schedule@yourdomain.com` |
 | `TWILIO_ACCOUNT_SID` | SMS | From [twilio.com](https://twilio.com) |
