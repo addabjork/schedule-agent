@@ -23,3 +23,4 @@ TIMEZONE = os.getenv("TIMEZONE", "America/New_York")
 
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
 HOME_ADDRESS = os.getenv("HOME_ADDRESS", "")
+TRAVEL_MODE = os.getenv("TRAVEL_MODE", "transit")

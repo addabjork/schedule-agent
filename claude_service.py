@@ -6,7 +6,7 @@ import anthropic
 
 import config
 from calendar_service import create_event
-from maps_service import get_transit_duration_minutes
+from maps_service import get_travel_duration_minutes
 
 logger = logging.getLogger(__name__)
 
@@ -14,9 +14,8 @@ TOOLS = [
     {
         "name": "get_travel_time",
         "description": (
-            "Get the estimated NYC subway/transit travel time in minutes from home "
-            "to an event location. Call this whenever an event has a location and a "
-            "specific start time (not all-day events)."
+            "Get the estimated travel time in minutes from home to an event location. "
+            "Call this whenever an event has a location and a specific start time (not all-day events)."
         ),
         "input_schema": {
             "type": "object",
@@ -109,9 +108,9 @@ Rules:
 
 Travel buffer rules:
 - If an event has a specific location AND a specific time (not all-day), \
-call get_travel_time first to check the transit duration from home
+call get_travel_time first to check the travel duration from home
 - If travel time is MORE than 15 minutes, also create a second calendar event \
-as a travel buffer: title "🚇 Travel to [event name]", same invite_husband as \
+as a travel buffer: title "🚗 Travel to [event name]", same invite_husband as \
 the main event, no location needed, ends when the main event starts, starts \
 travel_time minutes before the main event (round up to the nearest 5 minutes)
 - If travel time is 15 minutes or less, skip the travel buffer
@@ -170,9 +169,10 @@ creating an event."""
 
             if block.name == "get_travel_time":
                 try:
-                    minutes = get_transit_duration_minutes(
+                    minutes = get_travel_duration_minutes(
                         destination=block.input["location"],
                         arrival_datetime=block.input["arrival_datetime"],
+                        mode=config.TRAVEL_MODE,
                     )
                     result = {"duration_minutes": minutes}
                     tool_results.append({
