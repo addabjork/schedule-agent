@@ -6,10 +6,33 @@ import anthropic
 
 import config
 from calendar_service import create_event
+from maps_service import get_transit_duration_minutes
 
 logger = logging.getLogger(__name__)
 
 TOOLS = [
+    {
+        "name": "get_travel_time",
+        "description": (
+            "Get the estimated NYC subway/transit travel time in minutes from home "
+            "to an event location. Call this whenever an event has a location and a "
+            "specific start time (not all-day events)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "location": {
+                    "type": "string",
+                    "description": "The event location or address",
+                },
+                "arrival_datetime": {
+                    "type": "string",
+                    "description": "The event start time in ISO 8601 format (e.g. '2024-03-15T14:00:00')",
+                },
+            },
+            "required": ["location", "arrival_datetime"],
+        },
+    },
     {
         "name": "create_calendar_event",
         "description": "Create a Google Calendar event and send invites to attendees.",
@@ -54,7 +77,7 @@ TOOLS = [
             },
             "required": ["title", "start_datetime", "end_datetime"],
         },
-    }
+    },
 ]
 
 
@@ -82,7 +105,17 @@ Rules:
 "only me", "don't invite [name]", or similar
 - If the end time isn't specified, default to 1 hour after start
 - If the year is ambiguous, use the nearest future occurrence
-- After creating the event, reply with a brief, friendly confirmation
+- After creating all events, reply with a brief, friendly confirmation
+
+Travel buffer rules:
+- If an event has a specific location AND a specific time (not all-day), \
+call get_travel_time first to check the transit duration from home
+- If travel time is MORE than 15 minutes, also create a second calendar event \
+as a travel buffer: title "🚇 Travel to [event name]", same invite_husband as \
+the main event, no location needed, ends when the main event starts, starts \
+travel_time minutes before the main event (round up to the nearest 5 minutes)
+- If travel time is 15 minutes or less, skip the travel buffer
+- If get_travel_time returns null (location not found), skip the travel buffer
 
 If the message is not about a calendar event, respond helpfully without \
 creating an event."""
@@ -135,7 +168,27 @@ creating an event."""
             if block.type != "tool_use":
                 continue
 
-            if block.name == "create_calendar_event":
+            if block.name == "get_travel_time":
+                try:
+                    minutes = get_transit_duration_minutes(
+                        destination=block.input["location"],
+                        arrival_datetime=block.input["arrival_datetime"],
+                    )
+                    result = {"duration_minutes": minutes}
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps(result),
+                    })
+                except Exception as e:
+                    logger.error("get_travel_time failed: %s", e)
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": json.dumps({"duration_minutes": None}),
+                    })
+
+            elif block.name == "create_calendar_event":
                 try:
                     result = create_event(
                         title=block.input["title"],
