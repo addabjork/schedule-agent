@@ -132,10 +132,6 @@ def _handle_email(text: str, from_email: str, subject: str, images: list) -> Non
 async def email_webhook(request: Request, background_tasks: BackgroundTasks):
     form = await request.form()
 
-    logger.info("SendGrid fields: %s", list(form.keys()))
-    logger.info("SendGrid from: %r", form.get("from", ""))
-    logger.info("SendGrid sender: %r", form.get("sender", ""))
-
     from_header = form.get("from", "") or form.get("sender", "")
     subject = form.get("subject", "No subject")
     text_body = form.get("text", "") or _strip_html(form.get("html", ""))

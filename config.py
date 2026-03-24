@@ -22,4 +22,4 @@ HUSBAND_EMAIL = os.environ["HUSBAND_EMAIL"]
 TIMEZONE = os.getenv("TIMEZONE", "America/New_York")
 
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY", "")
-HOME_ADDRESS = os.getenv("HOME_ADDRESS", "3945 51st Street, Woodside NY 11377")
+HOME_ADDRESS = os.getenv("HOME_ADDRESS", "")
