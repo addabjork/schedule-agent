@@ -1,6 +1,6 @@
 # Schedule Agent
 
-An AI-powered family scheduling assistant. Email or text it event details — plain text, flyers, screenshots, invitations — and it automatically creates Google Calendar events and invites everyone.
+An AI-powered family scheduling assistant. Email or text it event details — plain text, flyers, screenshots, invitations — and it automatically creates Google Calendar events and invites you and anyone else you've designated to be invited, plus buffer for travel time.
 
 ## Features
 
